@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Analysis - Smartphone Recommendation System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .analysis-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .analysis-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .spec-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spec-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .spec-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .spec-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .impact-score {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .impact-label {
+            font-size: 0.9rem;
+            color: #4a5568;
+            margin-bottom: 1rem;
+        }
+
+        .sentiment-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .sentiment-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+
+        .sentiment-positive { background: linear-gradient(90deg, #48bb78, #38a169); }
+        .sentiment-negative { background: linear-gradient(90deg, #f56565, #e53e3e); }
+        .sentiment-neutral { background: linear-gradient(90deg, #ed8936, #dd6b20); }
+
+        .sentiment-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #4a5568;
+        }
+
+        .phone-comparison {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .phone-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .phone-card {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .phone-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .phone-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .phone-brand {
+            font-size: 0.9rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .phone-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #4a5568;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: white;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: rgba(245, 101, 101, 0.1);
+            border: 1px solid rgba(245, 101, 101, 0.3);
+            color: #e53e3e;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        /* Graph Containers */
+        .graphs-section {
+            margin-bottom: 3rem;
+        }
+
+        .graph-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+        }
+
+        .graph-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .graphs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .graph-plot {
+            height: 420px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .analysis-grid,
+            .specs-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .graphs-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .graph-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-bar"></i> Data Analysis Dashboard</h1>
+            <p>Explore how different specifications affect smartphone recommendation results</p>
+            
+            <div class="nav-buttons">
+                <a href="index.html" class="nav-btn">
+                    <i class="fas fa-home"></i> Homepage
+                </a>
+                <a href="smart-recommend.html" class="nav-btn">
+                    <i class="fas fa-brain"></i> Get Recommendations
+                </a>
+                <a href="upload-data.html" class="nav-btn">
+                    <i class="fas fa-cloud-upload-alt"></i> Upload Data
+                </a>
+            </div>
+        </div>
+
+        <div id="loadingSection" class="loading">
+            <div class="loading-spinner"></div>
+            <h3>Loading Analysis Data...</h3>
+            <p>Processing 1694 reviews from 8 phone models and analyzing specifications</p>
+        </div>
+
+        <div id="errorSection" class="error" style="display: none;">
+            <h3><i class="fas fa-exclamation-triangle"></i> Error Loading Data</h3>
+            <p>Unable to connect to the analysis server. Please ensure the server is running.</p>
+        </div>
+
+        <div id="analysisContent" style="display: none;">
+            <!-- Summary Cards -->
+            <div class="analysis-grid">
+                <div class="analysis-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="card-title">Phone Models</div>
+                    </div>
+                    <div class="impact-score" id="totalPhones">-</div>
+                    <div class="impact-label">Smartphones Analyzed</div>
+                </div>
+
+                <div class="analysis-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="card-title">User Reviews</div>
+                    </div>
+                    <div class="impact-score" id="totalReviews">-</div>
+                    <div class="impact-label">Reviews Processed</div>
+                </div>
+
+                <div class="analysis-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <div class="card-title">Specifications</div>
+                    </div>
+                    <div class="impact-score" id="totalAspects">-</div>
+                    <div class="impact-label">Key Aspects Identified</div>
+                </div>
+            </div>
+
+            <!-- Interactive Graphs Section -->
+            <div class="graphs-section">
+                <div class="graphs-grid">
+                    <!-- Aspect Impact Chart -->
+                    <div class="graph-container">
+                        <div class="graph-title">
+                            <i class="fas fa-chart-bar"></i> Aspect Impact Scores
+                        </div>
+                        <div id="aspectImpactChart" class="graph-plot"></div>
+                    </div>
+
+                    <!-- Sentiment Distribution -->
+                    <div class="graph-container">
+                        <div class="graph-title">
+                            <i class="fas fa-chart-pie"></i> Overall Sentiment Distribution
+                        </div>
+                        <div id="sentimentPieChart" class="graph-plot"></div>
+                    </div>
+                </div>
+
+                <div class="graphs-grid">
+                    <!-- Phone Comparison Radar -->
+                    <div class="graph-container">
+                        <div class="graph-title">
+                            <i class="fas fa-chart-area"></i> Phone Performance Radar
+                        </div>
+                        <div id="phoneRadarChart" class="graph-plot"></div>
+                    </div>
+
+                    <!-- Price vs Rating Scatter -->
+                    <div class="graph-container">
+                        <div class="graph-title">
+                            <i class="fas fa-chart-scatter"></i> Price vs Rating Analysis
+                        </div>
+                        <div id="priceRatingChart" class="graph-plot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Specifications Impact Grid -->
+            <div class="phone-comparison">
+                <div class="comparison-title">
+                    <i class="fas fa-chart-line"></i> Specification Impact Analysis
+                </div>
+                <div id="specsGrid" class="specs-grid">
+                    <!-- Specifications will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Phone Comparison -->
+            <div class="phone-comparison">
+                <div class="comparison-title">
+                    <i class="fas fa-mobile-alt"></i> Phone Performance Comparison
+                </div>
+                <div id="phoneGrid" class="phone-grid">
+                    <!-- Phones will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:4000/api';
+
+        async function loadAnalysisData() {
+            try {
+                // Check server health first
+                const healthResponse = await fetch(`${API_BASE}/health`);
+                if (!healthResponse.ok) throw new Error('Server not responding');
+
+                // Load analysis data
+                const analysisResponse = await fetch(`${API_BASE}/analysis`);
+                if (!analysisResponse.ok) throw new Error('Failed to load analysis data');
+                
+                const data = await analysisResponse.json();
+                
+                // Update summary cards
+                document.getElementById('totalPhones').textContent = data.totalPhones;
+                document.getElementById('totalReviews').textContent = data.totalReviews;
+                document.getElementById('totalAspects').textContent = data.totalAspects;
+
+                // Load interactive graphs
+                createAspectImpactChart(data.aspects);
+                createSentimentPieChart(data.aspects);
+                createPhoneRadarChart(data.phones);
+                createPriceRatingChart(data.phones);
+
+                // Load specifications grid
+                loadSpecificationsGrid(data.aspects);
+
+                // Load phone comparison
+                loadPhoneComparison(data.phones);
+
+                // Show content and hide loading
+                document.getElementById('loadingSection').style.display = 'none';
+                document.getElementById('analysisContent').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading analysis data:', error);
+                document.getElementById('loadingSection').style.display = 'none';
+                document.getElementById('errorSection').style.display = 'block';
+            }
+        }
+
+        // Plotly Chart Functions
+        function createAspectImpactChart(aspects) {
+            const sortedAspects = aspects.sort((a, b) => b.impact - a.impact);
+
+            const trace = {
+                x: sortedAspects.map(a => a.impact),
+                y: sortedAspects.map(a => capitalizeFirst(a.name)),
+                type: 'bar',
+                orientation: 'h',
+                marker: {
+                    color: sortedAspects.map(a => a.impact),
+                    colorscale: [
+                        [0, '#f56565'],
+                        [0.5, '#ed8936'],
+                        [1, '#48bb78']
+                    ],
+                    colorbar: {
+                        title: 'Impact Score',
+                        titleside: 'right'
+                    }
+                },
+                text: sortedAspects.map(a => `${a.impact.toFixed(1)}`),
+                textposition: 'inside',
+                textfont: { color: 'white', size: 12, weight: 'bold' }
+            };
+
+            const layout = {
+                title: {
+                    text: 'Specification Impact on Recommendations',
+                    font: { size: 14, color: '#2d3748' }
+                },
+                xaxis: {
+                    title: 'Impact Score (0-100)',
+                    gridcolor: '#e2e8f0',
+                    titlefont: { size: 12 }
+                },
+                yaxis: {
+                    title: 'Specifications',
+                    gridcolor: '#e2e8f0',
+                    titlefont: { size: 12 }
+                },
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                font: { family: 'Inter, sans-serif', size: 11 },
+                margin: { l: 120, r: 50, t: 50, b: 50 },
+                height: 380
+            };
+
+            Plotly.newPlot('aspectImpactChart', [trace], layout, {responsive: true});
+        }
+
+        function createSentimentPieChart(aspects) {
+            let totalPositive = 0, totalNegative = 0, totalNeutral = 0;
+
+            aspects.forEach(aspect => {
+                totalPositive += aspect.sentiments.positive;
+                totalNegative += aspect.sentiments.negative;
+                totalNeutral += aspect.sentiments.neutral;
+            });
+
+            const trace = {
+                values: [totalPositive, totalNeutral, totalNegative],
+                labels: ['Positive', 'Neutral', 'Negative'],
+                type: 'pie',
+                marker: {
+                    colors: ['#48bb78', '#ed8936', '#f56565']
+                },
+                textinfo: 'label+percent+value',
+                textfont: { size: 12, color: 'white' },
+                hole: 0.4
+            };
+
+            const layout = {
+                title: {
+                    text: 'Overall Sentiment Distribution',
+                    font: { size: 14, color: '#2d3748' }
+                },
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                font: { family: 'Inter, sans-serif', size: 11 },
+                showlegend: true,
+                legend: { orientation: 'h', y: -0.15, x: 0.5, xanchor: 'center' },
+                margin: { l: 50, r: 50, t: 50, b: 80 },
+                height: 380
+            };
+
+            Plotly.newPlot('sentimentPieChart', [trace], layout, {responsive: true});
+        }
+
+        function createPhoneRadarChart(phones) {
+            // Calculate value scores based on price ranges
+            const prices = phones.map(p => parseFloat(p.priceRange) || 0);
+            const maxPrice = Math.max(...prices);
+            const minPrice = Math.min(...prices.filter(p => p > 0));
+
+            const traces = phones.map((phone, index) => {
+                const colors = ['#667eea', '#764ba2', '#48bb78', '#ed8936', '#f56565'];
+
+                // Calculate value score (inverse of price, normalized to 1-5 scale)
+                const phonePrice = parseFloat(phone.priceRange) || 0;
+                let valueScore = 1; // Default minimum score
+                if (phonePrice > 0 && maxPrice > minPrice) {
+                    // Inverse price score: cheaper phones get higher scores
+                    const priceRatio = (maxPrice - phonePrice) / (maxPrice - minPrice);
+                    valueScore = 1 + (priceRatio * 4); // Scale to 1-5 range
+                }
+
+                return {
+                    type: 'scatterpolar',
+                    r: [
+                        phone.avgRating,
+                        Math.min(phone.totalReviews / 50, 5), // Normalize reviews to 0-5 scale
+                        valueScore, // Proper value score calculation
+                        Math.min(Object.keys(phone.aspects).length, 5), // Cap aspects at 5
+                        phone.avgRating // Overall score (same as rating)
+                    ],
+                    theta: ['Rating', 'Review Volume', 'Value Score', 'Aspects Covered', 'Overall Score'],
+                    fill: 'toself',
+                    name: phone.name,
+                    line: { color: colors[index % colors.length] },
+                    marker: { color: colors[index % colors.length] }
+                };
+            });
+
+            const layout = {
+                polar: {
+                    radialaxis: {
+                        visible: true,
+                        range: [0, 5],
+                        gridcolor: '#e2e8f0',
+                        tickfont: { size: 10 }
+                    },
+                    angularaxis: {
+                        gridcolor: '#e2e8f0',
+                        tickfont: { size: 10 }
+                    }
+                },
+                title: {
+                    text: 'Phone Performance Comparison',
+                    font: { size: 14, color: '#2d3748' }
+                },
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                font: { family: 'Inter, sans-serif', size: 10 },
+                showlegend: true,
+                legend: { orientation: 'h', y: -0.15, x: 0.5, xanchor: 'center' },
+                margin: { l: 50, r: 50, t: 50, b: 100 },
+                height: 450
+            };
+
+            Plotly.newPlot('phoneRadarChart', traces, layout, {responsive: true});
+        }
+
+        function loadSpecificationsGrid(aspects) {
+            const specsGrid = document.getElementById('specsGrid');
+            specsGrid.innerHTML = '';
+
+            // Sort aspects by impact score
+            const sortedAspects = aspects.sort((a, b) => b.impact - a.impact);
+
+            sortedAspects.forEach(aspect => {
+                const specCard = document.createElement('div');
+                specCard.className = 'spec-card';
+                
+                const totalSentiments = aspect.sentiments.positive + aspect.sentiments.negative + aspect.sentiments.neutral;
+                const positivePercent = totalSentiments > 0 ? (aspect.sentiments.positive / totalSentiments) * 100 : 0;
+                const negativePercent = totalSentiments > 0 ? (aspect.sentiments.negative / totalSentiments) * 100 : 0;
+                const neutralPercent = totalSentiments > 0 ? (aspect.sentiments.neutral / totalSentiments) * 100 : 0;
+
+                specCard.innerHTML = `
+                    <div class="spec-name">
+                        <i class="fas fa-${getAspectIcon(aspect.name)}"></i>
+                        ${capitalizeFirst(aspect.name)}
+                    </div>
+                    <div class="impact-score">${aspect.impact.toFixed(1)}</div>
+                    <div class="impact-label">Impact Score (out of 100)</div>
+                    
+                    <div class="sentiment-bar">
+                        <div class="sentiment-fill sentiment-positive" style="width: ${positivePercent}%"></div>
+                    </div>
+                    <div class="sentiment-stats">
+                        <span>Positive: ${aspect.sentiments.positive}</span>
+                        <span>Neutral: ${aspect.sentiments.neutral}</span>
+                        <span>Negative: ${aspect.sentiments.negative}</span>
+                    </div>
+                `;
+
+                specsGrid.appendChild(specCard);
+            });
+        }
+
+        function loadPhoneComparison(phones) {
+            const phoneGrid = document.getElementById('phoneGrid');
+            phoneGrid.innerHTML = '';
+
+            phones.forEach(phone => {
+                const phoneCard = document.createElement('div');
+                phoneCard.className = 'phone-card';
+                
+                phoneCard.innerHTML = `
+                    <div class="phone-name">${phone.name}</div>
+                    <div class="phone-brand">${phone.brand}</div>
+                    <div class="phone-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">${phone.avgRating.toFixed(1)}</span>
+                            <span class="stat-label">Avg Rating</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">${phone.totalReviews}</span>
+                            <span class="stat-label">Reviews</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">RM${phone.priceRange}</span>
+                            <span class="stat-label">Price</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">${Object.keys(phone.aspects).length}</span>
+                            <span class="stat-label">Aspects</span>
+                        </div>
+                    </div>
+                `;
+
+                phoneGrid.appendChild(phoneCard);
+            });
+        }
+
+        function getAspectIcon(aspectName) {
+            const iconMap = {
+                'camera': 'camera',
+                'battery': 'battery-full',
+                'performance': 'tachometer-alt',
+                'screen': 'desktop',
+                'design': 'palette',
+                'price': 'dollar-sign',
+                'software': 'code',
+                'storage': 'hdd',
+                'connectivity': 'wifi',
+                'audio': 'volume-up',
+                'other': 'cog'
+            };
+            return iconMap[aspectName.toLowerCase()] || 'cog';
+        }
+
+        function createPriceRatingChart(phones) {
+            // Sort phones by price for better visual flow
+            const sortedPhones = [...phones].sort((a, b) => a.priceRange - b.priceRange);
+
+            const trace = {
+                x: sortedPhones.map(p => p.priceRange),
+                y: sortedPhones.map(p => p.avgRating),
+                mode: 'markers+text',
+                type: 'scatter',
+                text: sortedPhones.map(p => p.name.replace(/\s+/g, '<br>')), // Break long names
+                textposition: 'top center',
+                hovertemplate: '<b>%{text}</b><br>' +
+                              'Price: RM%{x}<br>' +
+                              'Rating: %{y:.1f}/5<br>' +
+                              'Reviews: %{marker.size}<br>' +
+                              '<extra></extra>',
+                marker: {
+                    size: sortedPhones.map(p => Math.max(15, Math.min(60, p.totalReviews / 3))), // Better size scaling
+                    color: sortedPhones.map(p => p.avgRating),
+                    colorscale: [
+                        [0, '#e53e3e'],    // Red for low ratings
+                        [0.3, '#fd9801'],  // Orange for medium-low
+                        [0.6, '#38a169'],  // Green for good
+                        [1, '#2f855a']     // Dark green for excellent
+                    ],
+                    colorbar: {
+                        title: {
+                            text: 'Rating',
+                            font: { size: 12 }
+                        },
+                        titleside: 'right',
+                        thickness: 15,
+                        len: 0.7,
+                        x: 1.02
+                    },
+                    line: { width: 3, color: 'white' },
+                    opacity: 0.8
+                },
+                textfont: {
+                    size: 9,
+                    color: '#1a202c',
+                    family: 'Inter, sans-serif'
+                }
+            };
+
+            const layout = {
+                title: {
+                    text: 'Price vs Rating Analysis',
+                    font: { size: 16, color: '#1a202c', family: 'Inter, sans-serif' },
+                    x: 0.5,
+                    xanchor: 'center'
+                },
+                xaxis: {
+                    title: {
+                        text: 'Price (MYR)',
+                        font: { size: 13, color: '#2d3748' }
+                    },
+                    gridcolor: '#e2e8f0',
+                    gridwidth: 1,
+                    zeroline: false,
+                    tickformat: 'RM,.0f',
+                    tickfont: { size: 11 }
+                },
+                yaxis: {
+                    title: {
+                        text: 'Average Rating',
+                        font: { size: 13, color: '#2d3748' }
+                    },
+                    gridcolor: '#e2e8f0',
+                    gridwidth: 1,
+                    range: [3.8, 5.1],
+                    tickfont: { size: 11 },
+                    tickformat: '.1f'
+                },
+                plot_bgcolor: '#fafafa',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                font: { family: 'Inter, sans-serif', size: 11 },
+                margin: { l: 70, r: 80, t: 60, b: 60 },
+                height: 420,
+                showlegend: false,
+                annotations: [
+                    {
+                        text: 'Bubble size represents review count',
+                        showarrow: false,
+                        x: 0.02,
+                        y: 0.98,
+                        xref: 'paper',
+                        yref: 'paper',
+                        font: { size: 10, color: '#718096' },
+                        bgcolor: 'rgba(255,255,255,0.8)',
+                        bordercolor: '#e2e8f0',
+                        borderwidth: 1
+                    },
+                    {
+                        text: 'Higher and right = Better value',
+                        showarrow: false,
+                        x: 0.98,
+                        y: 0.02,
+                        xref: 'paper',
+                        yref: 'paper',
+                        xanchor: 'right',
+                        font: { size: 10, color: '#718096' },
+                        bgcolor: 'rgba(255,255,255,0.8)',
+                        bordercolor: '#e2e8f0',
+                        borderwidth: 1
+                    }
+                ]
+            };
+
+            const config = {
+                responsive: true,
+                displayModeBar: true,
+                modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d'],
+                displaylogo: false
+            };
+
+            Plotly.newPlot('priceRatingChart', [trace], layout, config);
+        }
+
+
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAnalysisData();
+        });
+    </script>
+</body>
+</html>

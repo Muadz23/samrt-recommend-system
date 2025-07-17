@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Smartphone Recommendation System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hero-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 4rem 3rem;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 800px;
+            width: 100%;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #FFD700;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.4;
+        }
+
+        .cta-section {
+            margin-top: 3rem;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #333;
+            padding: 1.2rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.4);
+            background: linear-gradient(135deg, #FFA500 0%, #FFD700 100%);
+        }
+
+        .cta-button i {
+            font-size: 1.3rem;
+            transition: transform 0.3s ease;
+        }
+
+        .cta-button:hover i {
+            transform: translateX(5px);
+        }
+
+        .stats-section {
+            margin-top: 3rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #FFD700;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .floating-phone {
+            position: absolute;
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-phone:nth-child(1) {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-phone:nth-child(2) {
+            top: 20%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .floating-phone:nth-child(3) {
+            bottom: 30%;
+            left: 5%;
+            animation-delay: 4s;
+        }
+
+        .floating-phone:nth-child(4) {
+            bottom: 10%;
+            right: 10%;
+            animation-delay: 1s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+        }
+
+        .footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.2rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .hero-section {
+                padding: 2.5rem 2rem;
+                margin: 1rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #FFD700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3>Loading Smart Recommendation System...</h3>
+            <p>Preparing your personalized experience</p>
+        </div>
+    </div>
+
+    <!-- Floating Background Elements -->
+    <div class="floating-elements">
+        <i class="fas fa-mobile-alt floating-phone"></i>
+        <i class="fas fa-tablet-alt floating-phone"></i>
+        <i class="fas fa-mobile floating-phone"></i>
+        <i class="fas fa-phone floating-phone"></i>
+    </div>
+
+    <div class="container">
+        <div class="hero-section">
+            <div class="logo">📱</div>
+            
+            <h1 class="hero-title">Smart Smartphone Recommendations</h1>
+            
+            <p class="hero-subtitle">
+                Discover your perfect smartphone with AI-powered recommendations based on real user reviews and intelligent analysis
+            </p>
+
+            <div class="features-grid">
+                <div class="feature-item">
+                    <i class="fas fa-brain feature-icon"></i>
+                    <div class="feature-title">AI-Powered</div>
+                    <div class="feature-desc">Smart algorithms analyze your preferences</div>
+                </div>
+                
+                <div class="feature-item">
+                    <i class="fas fa-chart-line feature-icon"></i>
+                    <div class="feature-title">Real Data</div>
+                    <div class="feature-desc">Based on 482 genuine user reviews</div>
+                </div>
+                
+                <div class="feature-item">
+                    <i class="fas fa-heart feature-icon"></i>
+                    <div class="feature-title">Personalized</div>
+                    <div class="feature-desc">Tailored to your specific needs</div>
+                </div>
+                
+                <div class="feature-item">
+                    <i class="fas fa-bolt feature-icon"></i>
+                    <div class="feature-title">Instant</div>
+                    <div class="feature-desc">Get recommendations in seconds</div>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <a href="smart-recommend.html" class="cta-button" id="getStartedBtn">
+                    <i class="fas fa-rocket"></i>
+                    Get Smart Recommendations
+                </a>
+
+                <div style="margin-top: 1rem;">
+                    <a href="data-analysis.html" class="cta-button" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); box-shadow: 0 10px 30px rgba(72, 187, 120, 0.3);">
+                        <i class="fas fa-chart-bar"></i>
+                        View Data Analysis
+                    </a>
+
+                    <a href="upload-data.html" class="cta-button" style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); box-shadow: 0 10px 30px rgba(237, 137, 54, 0.3); margin-left: 1rem;">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        Upload Data
+                    </a>
+                </div>
+            </div>
+
+            <div class="stats-section">
+                <div class="stat-item">
+                    <span class="stat-number" id="phoneCount">5</span>
+                    <span class="stat-label">Phone Models</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="reviewCount">1694</span>
+                    <span class="stat-label">Reviews Analyzed</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">11</span>
+                    <span class="stat-label">Key Aspects</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">Personalized</span>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>Powered by advanced sentiment analysis and machine learning algorithms</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check server status and show loading
+        async function checkServerStatus() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                if (data.status === 'OK') {
+                    // Server is ready, hide loading overlay
+                    setTimeout(() => {
+                        document.getElementById('loadingOverlay').classList.add('hidden');
+                    }, 1500); // Show loading for at least 1.5 seconds for better UX
+                } else {
+                    throw new Error('Server not ready');
+                }
+            } catch (error) {
+                // Server not ready, keep loading or show error
+                console.log('Server not ready, retrying...');
+                setTimeout(checkServerStatus, 2000); // Retry every 2 seconds
+            }
+        }
+
+        // Fetch dynamic stats from server
+        async function updateStats() {
+            try {
+                const response = await fetch('http://localhost:4000/api/stats');
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('phoneCount').textContent = stats.phoneCount || 8;
+                    document.getElementById('reviewCount').textContent = stats.reviewCount || 1694;
+                }
+            } catch (error) {
+                console.log('Could not fetch stats, using default values');
+            }
+        }
+
+        // Handle Get Started button click
+        document.getElementById('getStartedBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Show loading overlay
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            document.querySelector('.loading-content h3').textContent = 'Launching Recommendation System...';
+            document.querySelector('.loading-content p').textContent = 'Preparing your personalized experience';
+            
+            // Navigate after a short delay for better UX
+            setTimeout(() => {
+                window.location.href = 'smart-recommend.html';
+            }, 1000);
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            checkServerStatus();
+            updateStats();
+            
+            // Add some interactive animations
+            const featureItems = document.querySelectorAll('.feature-item');
+            featureItems.forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.2}s`;
+                item.style.animation = 'fadeInUp 0.8s ease-out forwards';
+            });
+        });
+
+        // Add parallax effect to floating elements
+        document.addEventListener('mousemove', (e) => {
+            const floatingPhones = document.querySelectorAll('.floating-phone');
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            floatingPhones.forEach((phone, index) => {
+                const speed = (index + 1) * 0.5;
+                const x = (mouseX - 0.5) * speed * 20;
+                const y = (mouseY - 0.5) * speed * 20;
+                phone.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
+    </script>
+</body>
+</html>
